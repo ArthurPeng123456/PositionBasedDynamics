@@ -1,3 +1,8 @@
 lib/
 bin/
 !bin/*.bat
+.vs/
+out/
+CMakeSettings.json
+Utils/Version.h
+extern/Discregrid/
