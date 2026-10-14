@@ -5,4 +5,3 @@ bin/
 out/
 CMakeSettings.json
 Utils/Version.h
-extern/Discregrid/
