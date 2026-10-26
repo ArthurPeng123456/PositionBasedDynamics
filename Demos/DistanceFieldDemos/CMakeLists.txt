@@ -16,6 +16,16 @@ else()
 endif()
 
 ############################################################
+# Discregrid
+############################################################
+include_directories(${Discregrid_INCLUDE_DIR})
+if (TARGET Ext_Discregrid)
+	set(SIMULATION_DEPENDENCIES ${SIMULATION_DEPENDENCIES} Ext_Discregrid)
+endif()
+set(SIMULATION_LINK_LIBRARIES ${SIMULATION_LINK_LIBRARIES} ${Discregrid_LIBRARIES})
+
+
+############################################################
 # GenericParameters
 ############################################################
 include_directories(${GenericParameters_INCLUDE_DIR})

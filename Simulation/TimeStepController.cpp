@@ -5,6 +5,7 @@
 #include <iostream>
 #include "PositionBasedDynamics/PositionBasedDynamics.h"
 #include "Utils/Timing.h"
+#include "Utils/Logger.h"
 
 using namespace PBD;
 using namespace std;
@@ -89,6 +90,8 @@ void TimeStepController::step(SimulationModel &model)
 	const int numBodies = (int)rb.size();
 
 	Real h = hOld / (Real)m_subSteps;
+	//LOG_INFO << "hOld: " << hOld << ", m_subSteps: " << m_subSteps << ", h: " << h << ", m_iterations:" << m_iterations;
+
 	tm->setTimeStepSize(h);
 	for (unsigned int step = 0; step < m_subSteps; step++)
 	{

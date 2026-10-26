@@ -1,6 +1,7 @@
 #include "SimulationModel.h"
 #include "PositionBasedDynamics/PositionBasedRigidBodyDynamics.h"
 #include "Constraints.h"
+#include "Utils/Logger.h"
 
 using namespace PBD;
 using namespace GenParam;

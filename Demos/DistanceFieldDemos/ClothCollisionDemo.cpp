@@ -7,12 +7,14 @@
 #include "Simulation/TimeStepController.h"
 #include <iostream>
 #include "Demos/Visualization/Visualization.h"
-#include "Simulation/DistanceFieldCollisionDetection.h"
+//#include "Simulation/DistanceFieldCollisionDetection.h"
 #include "Utils/Logger.h"
 #include "Utils/Timing.h"
 #include "Utils/FileSystem.h"
 #include "Demos/Common/DemoBase.h"
 #include "Simulation/Simulation.h"
+#include "Simulation/CubicSDFCollisionDetection.h"  
+#include "Discregrid/All"
 
 
 // Enable memory leak detection
@@ -37,8 +39,37 @@ const Real width = 10.0;
 const Real height = 10.0;
 bool doPause = true;
 DemoBase *base;
-DistanceFieldCollisionDetection cd;
+CubicSDFCollisionDetection  cd;
+CubicSDFCollisionDetection::GridPtr generateSDF(VertexData& vd, IndexedFaceMesh& mesh,
+	const Eigen::Matrix<unsigned int, 3, 1>& resolution)
+{
+	std::vector<unsigned int>& faces = mesh.getFaces();
+	const unsigned int nFaces = mesh.numFaces();
 
+#ifdef USE_DOUBLE  
+	Discregrid::TriangleMesh sdfMesh(&vd.getPosition(0)[0], faces.data(), vd.size(), nFaces);
+#else  
+	std::vector<double> doubleVec;
+	doubleVec.resize(3 * vd.size());
+	for (unsigned int i = 0; i < vd.size(); i++)
+		for (unsigned int j = 0; j < 3; j++)
+			doubleVec[3 * i + j] = vd.getPosition(i)[j];
+	Discregrid::TriangleMesh sdfMesh(&doubleVec[0], faces.data(), vd.size(), nFaces);
+#endif  
+	Discregrid::TriangleMeshDistance md(sdfMesh);
+	Eigen::AlignedBox3d domain;
+	for (auto const& x : sdfMesh.vertices())
+		domain.extend(x);
+	domain.max() += 0.1 * Eigen::Vector3d::Ones();
+	domain.min() -= 0.1 * Eigen::Vector3d::Ones();
+
+	auto sdf = std::make_shared<CubicSDFCollisionDetection::Grid>(
+		domain, std::array<unsigned int, 3>({ resolution[0], resolution[1], resolution[2] }));
+	auto func = Discregrid::DiscreteGrid::ContinuousFunction{};
+	func = [&md](Eigen::Vector3d const& xi) { return md.signed_distance(xi).distance; };
+	sdf->addFunction(func, true);
+	return sdf;
+}
 // main 
 int main( int argc, char **argv )
 {
@@ -162,16 +193,23 @@ void buildModel ()
 	Simulation::getCurrent()->getTimeStep()->setCollisionDetection(*model, &cd);
 	cd.setTolerance(static_cast<Real>(0.05));
 
-	const std::vector<Vector3r> &vertices1 = rb[0]->getGeometry().getVertexDataLocal().getVertices();
-	const unsigned int nVert1 = static_cast<unsigned int>(vertices1.size());
-	cd.addCollisionBox(0, CollisionDetection::CollisionObject::RigidBodyCollisionObjectType, vertices1.data(), nVert1, Vector3r(100.0, 1.0, 100.0));
+	const Eigen::Matrix<unsigned int, 3, 1> resolution(30, 30, 30);
 
-	const std::vector<Vector3r> &vertices2 = rb[1]->getGeometry().getVertexDataLocal().getVertices();
+	// floor (box) -> SDF of cube.obj, scaled by (100,1,100)  
+	CubicSDFCollisionDetection::GridPtr sdfBox = generateSDF(vd, mesh, resolution);
+	const std::vector<Vector3r>& vertices1 = rb[0]->getGeometry().getVertexDataLocal().getVertices();
+	const unsigned int nVert1 = static_cast<unsigned int>(vertices1.size());
+	cd.addCubicSDFCollisionObject(0, CollisionDetection::CollisionObject::RigidBodyCollisionObjectType,
+		vertices1.data(), nVert1, sdfBox, Vector3r(100.0, 1.0, 100.0));
+
+	// torus -> SDF of torus.obj, scaled by (2,2,2)  
+	CubicSDFCollisionDetection::GridPtr sdfTorus = generateSDF(vdTorus, meshTorus, resolution);
+	const std::vector<Vector3r>& vertices2 = rb[1]->getGeometry().getVertexDataLocal().getVertices();
 	const unsigned int nVert2 = static_cast<unsigned int>(vertices2.size());
-	cd.addCollisionTorus(1, CollisionDetection::CollisionObject::RigidBodyCollisionObjectType, vertices2.data(), nVert2, Vector2r(2.0, 1.0));
-	
-	SimulationModel::TriangleModelVector &tm = model->getTriangleModels();
-	ParticleData &pd = model->getParticles();
+	cd.addCubicSDFCollisionObject(1, CollisionDetection::CollisionObject::RigidBodyCollisionObjectType,
+		vertices2.data(), nVert2, sdfTorus, Vector3r(2.0, 2.0, 2.0));
+	SimulationModel::TriangleModelVector& tm = model->getTriangleModels();
+	ParticleData& pd = model->getParticles();
 	for (unsigned int i = 0; i < tm.size(); i++)
 	{
 		const unsigned int nVert = tm[i]->getParticleMesh().numVertices();

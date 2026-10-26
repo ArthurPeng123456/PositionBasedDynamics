@@ -2,6 +2,7 @@
 #include "PositionBasedDynamics.h"
 #include "MathFunctions.h"
 #include <cfloat>
+#include <fstream>
 
 using namespace PBD;
 
@@ -201,6 +202,15 @@ bool XPBD::solve_IsometricBendingConstraint(
 		// compute impulse-based scaling factor
 		const Real delta_lambda = -(energy + alpha * lambda) / sum_normGradC;
 		lambda += delta_lambda;
+
+		// 保存 lambda 到文件，同时保存对应的约束索引（静态变量从 1 开始累加）
+		//static int s_constraint_id = 1;
+		//const int constraint_id = s_constraint_id++;
+		//{
+		//	std::ofstream ofs("XPBD_lambda_log000000001kg.txt", std::ios::app);
+		//	if (ofs)
+		//		ofs << constraint_id << " " << lambda << "\n";
+		//}
 
 		corr0 = (delta_lambda * invMass[2]) * gradC[2];
 		corr1 = (delta_lambda * invMass[3]) * gradC[3];

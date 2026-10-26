@@ -608,7 +608,7 @@ void DemoBase::renderTriangleModels()
 {
 	SimulationModel *model = Simulation::getCurrent()->getModel();
 	const ParticleData &pd = model->getParticles();
-	float surfaceColor[4] = { 0.8f, 0.9f, 0.2f, 1 };
+	float surfaceColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 	shaderTexBegin(surfaceColor);
 

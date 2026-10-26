@@ -50,17 +50,15 @@ int main( int argc, char **argv )
 
 	std::string exePath = FileSystem::getProgramPath();
 
-	std::string sceneFileName;
-	if (argc > 1)
-		sceneFileName = string(argv[1]);
-	else
-	{
-		std::cerr << "Usage: SceneLoaderDemo [scene_file]\n";
-		exit(1);
-	}
+	std::string sceneFileName = "D:\\codes\\PositionBasedDynamics\\data\\scenes\\ClothCollisionScene.json";
+
+	char* myArgv[2];
+	myArgv[0] = argv[0];                        // 程序路径，保持不变  
+	myArgv[1] = const_cast<char*>(sceneFileName.c_str());
+	int myArgc = 2;
 
 	base = new DemoBase();
-	base->init(argc, argv, sceneFileName.c_str());
+	base->init(myArgc, myArgv, sceneFileName.c_str());
 
 	SimulationModel *model = new SimulationModel();
 	model->init();
