@@ -1,0 +1,66 @@
+{
+  "Name": "ClothCollisionDemo",
+  "Simulation": {
+    "timeStepSize": 0.005,
+    "contactTolerance": 0.05,
+    "clothSimulationMethod": 2,
+    "clothBendingMethod": 2,
+    "cloth_stiffness": 1.0,
+    "cloth_bendingStiffness": 0.01,
+    "cloth_xxStiffness": 1.0,
+    "cloth_yyStiffness": 1.0,
+    "cloth_xyStiffness": 1.0,
+    "cloth_xyPoissonRatio": 0.3,
+    "cloth_yxPoissonRatio": 0.3,
+    "cloth_normalizeStretch": 0,
+    "cloth_normalizeShear": 0
+  },
+  "TriangleModels": [
+    {
+      "comment": "布料: 代码里用 addRegularTriangleModel(50,50, origin(-5,4,-5), rotX(90deg), size 10x10) 程序化生成,此处用 plane_50x50.obj 等价表达",
+      "id": 0,
+      "geometryFile": "../models/plane_50x50.obj",
+      "translation": [ 0, 4, 0 ],
+      "rotationAxis": [ 1, 0, 0 ],
+      "rotationAngle": 0.0,
+      "scale": [ 10, 10, 10 ],
+      "friction": 0.1,
+      "restitution": 0.1
+    }
+  ],
+  "RigidBodies": [
+    {
+      "comment": "地面(floor): cube.obj, 静态, SDF 碰撞",
+      "id": 0,
+      "geometryFile": "../models/cube.obj",
+      "flatShading": true,
+      "isDynamic": 0,
+      "density": 1.0,
+      "translation": [ 0, -2.5, 0 ],
+      "rotationAxis": [ 1, 0, 0 ],
+      "rotationAngle": 0.0,
+      "scale": [ 100, 1, 100 ],
+      "friction": 0.0,
+      "collisionObjectType": 5,
+      "collisionObjectFileName": "",
+      "resolutionSDF": [ 30, 30, 30 ],
+      "collisionObjectScale": [ 100, 1, 100 ]
+    },
+    {
+      "comment": "圆环(torus): torus.obj, 静态, SDF 碰撞",
+      "id": 1,
+      "geometryFile": "../models/torus.obj",
+      "isDynamic": 0,
+      "density": 1.0,
+      "translation": [ 0, 1.5, 0 ],
+      "rotationAxis": [ 1, 0, 0 ],
+      "rotationAngle": 0.0,
+      "scale": [ 2, 2, 2 ],
+      "friction": 0.1,
+      "collisionObjectType": 5,
+      "collisionObjectFileName": "",
+      "resolutionSDF": [ 30, 30, 30 ],
+      "collisionObjectScale": [ 2, 2, 2 ]
+    }
+  ]
+}

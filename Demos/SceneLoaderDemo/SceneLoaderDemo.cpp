@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 
 	std::string exePath = FileSystem::getProgramPath();
 
-	std::string sceneFileName = "D:\\codes\\PositionBasedDynamics\\data\\scenes\\ClothCollisionScene.json";
+	std::string sceneFileName = "D:\\codes\\PositionBasedDynamics\\data\\scenes\\ClothOnTorusFly.json";
 
 	char* myArgv[2];
 	myArgv[0] = argv[0];                        // 程序路径，保持不变  
